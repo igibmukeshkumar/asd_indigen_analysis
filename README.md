@@ -198,5 +198,4 @@ v14	g8	AD	ASD	2	0	3	1	2	1	.	.	4
 v15	g9	AD	MD	1	0	1	0	1	0	.	.	3
 v16	g10	AD	MD	1	1	1	1	1	1	.	.	3
 
-
-
+# BEST ARTICLE FOR BASIC OF HWE: https://www.nature.com/scitable/definition/hardy-weinberg-equation-299/
