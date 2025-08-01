@@ -9,7 +9,8 @@ HET_GENOS = {"0/1", "0|1", "1/0", "1|0", "./1", ".|1", "1/.", "1|."}
 HOM_GENOS = {"1/1", "1|1"}
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Calculate Carrier and Prevalence Rates.")
+    parser = argparse.ArgumentParser(
+        description="Calculate and Prepare Data for Carrier and Prevalence Rates.")
     parser.add_argument("-gf", "--GTfile", required=True, help="Path to genotype matrix file")
     parser.add_argument("-qf", "--Queryfile", required=True, help="Path to query file")
     parser.add_argument("-o", "--Output", required=True, help="Output file path")
@@ -32,11 +33,22 @@ def count_raw_variant(row, samples):
     hom_count = sum(is_hom(row[s]) for s in samples)
     return pd.Series([het_count, hom_count])
 
-def build_gene_dict(df, samples):
-    gene_variants = defaultdict(list)
-    for _, row in df.iterrows():
-        gene_variants[row['gene']].append(row)
-    return gene_variants
+def gene_level_counts(df, samples):
+    het_gene = {}
+    hom_gene = {}
+    grouped = df.groupby("gene")
+    for gene, group in grouped:
+        het_total = 0
+        hom_total = 0
+        for _, row in group.iterrows():
+            for s in samples:
+                g = row[s]
+                if is_het(g): het_total += 1
+                if is_hom(g): hom_total += 1
+        for idx in group.index:
+            het_gene[idx] = het_total
+            hom_gene[idx] = hom_total
+    return het_gene, hom_gene
 
 def unique_counts_per_gene_moi(df, samples):
     grouped = df.groupby(['gene', 'moi'])
@@ -48,10 +60,8 @@ def unique_counts_per_gene_moi(df, samples):
         for _, row in group.iterrows():
             for s in samples:
                 g = row[s]
-                if is_het(g):
-                    het[s] += 1
-                elif is_hom(g):
-                    hom[s] += 1
+                if is_het(g): het[s] += 1
+                elif is_hom(g): hom[s] += 1
 
         uniq_het = sum(1 for s in samples if het[s] > 0 and hom[s] == 0)
         uniq_hom = sum(1 for s in samples if hom[s] > 0)
@@ -71,10 +81,8 @@ def ar_carrier_diseased(df, samples):
         for _, row in group.iterrows():
             for s in samples:
                 g = row[s]
-                if is_het(g):
-                    het[s] += 1
-                elif is_hom(g):
-                    hom[s] += 1
+                if is_het(g): het[s] += 1
+                elif is_hom(g): hom[s] += 1
         final_het = sum(1 for s in samples if het[s] > 0 and hom[s] == 0)
         final_hom = sum(1 for s in samples if hom[s] > 0)
         for idx in group.index:
@@ -90,29 +98,12 @@ def ad_diseased(df, samples):
         for _, row in group.iterrows():
             for s in samples:
                 g = row[s]
-                if is_hom(g) or is_het(g):
+                if is_het(g) or is_hom(g):
                     seen[s] += 1
         count = sum(1 for s in samples if seen[s] > 0)
         for idx in group.index:
             het_hom_dom[idx] = count
     return het_hom_dom
-
-def gene_level_counts(df, samples):
-    het_gene = {}
-    hom_gene = {}
-    grouped = df.groupby("gene")
-    for gene, group in grouped:
-        het_total = 0
-        hom_total = 0
-        for _, row in group.iterrows():
-            for s in samples:
-                g = row[s]
-                if is_het(g): het_total += 1
-                if is_hom(g): hom_total += 1
-        for idx in group.index:
-            het_gene[idx] = het_total
-            hom_gene[idx] = hom_total
-    return het_gene, hom_gene
 
 def main():
     args = parse_args()
@@ -120,8 +111,9 @@ def main():
     merged_df = merge_and_align(gt_df, query_df)
     samples = [col for col in merged_df.columns if col not in ['variant', 'gene', 'moi', 'condition']]
 
-    merged_df[['het_raw_per_variant', 'hom_raw_per_variant']] = merged_df.apply(lambda row: count_raw_variant(row, samples), axis=1)
-    
+    merged_df[['het_raw_per_variant', 'hom_raw_per_variant']] = merged_df.apply(
+        lambda row: count_raw_variant(row, samples), axis=1)
+
     het_gene, hom_gene = gene_level_counts(merged_df, samples)
     merged_df['het_raw_per_gene'] = merged_df.index.map(het_gene)
     merged_df['hom_raw_per_gene'] = merged_df.index.map(hom_gene)
@@ -131,13 +123,15 @@ def main():
     merged_df['uniq_hom_for_moi_per_gene'] = merged_df.index.map(uniq_hom_moi)
 
     uniq_het_rec, uniq_hom_rec = ar_carrier_diseased(merged_df, samples)
-    merged_df['uniq_het_for_rec_pmoi_CARRIER'] = merged_df.index.map(lambda x: uniq_het_rec.get(x, "."))
-    merged_df['uniq_hom_for_rec_pmoi_DISEASED'] = merged_df.index.map(lambda x: uniq_hom_rec.get(x, "."))
+    merged_df['uniq_het_for_rec_pcond_CARRIER'] = merged_df.index.map(lambda x: uniq_het_rec.get(x, "."))
+    merged_df['uniq_hom_for_rec_pcond_DISEASED'] = merged_df.index.map(lambda x: uniq_hom_rec.get(x, "."))
 
     het_hom_dom = ad_diseased(merged_df, samples)
-    merged_df['uniq_hethom_for_dom_pmoi_DISEASED'] = merged_df.index.map(lambda x: het_hom_dom.get(x, "."))
+    merged_df['uniq_hethom_for_dom_pcond_DISEASED'] = merged_df.index.map(lambda x: het_hom_dom.get(x, "."))
 
-    merged_df.to_csv(args.Output, sep="\t", index=False)
+    # Remove sample genotype columns before writing
+    output_cols = [col for col in merged_df.columns if col not in samples]
+    merged_df[output_cols].to_csv(args.Output, sep="\t", index=False)
 
 if __name__ == "__main__":
     main()
