@@ -1,65 +1,67 @@
-╔══════════════════════════════════════════════════════════════════════╗
-║                ASD Variant Analysis Pipeline (IndiGen + gnomAD)      ║
-╚══════════════════════════════════════════════════════════════════════╝
+# ASD Variant Analysis Pipeline
 
-This repository contains a stepwise bioinformatics pipeline for identifying,
-annotating, prioritizing, and statistically evaluating ASD-associated genetic
-variants using the IndiGen dataset and global population references from gnomAD.
+This repository contains a step-wise bioinformatics pipeline for the identification,
+annotation, statistical evaluation, and visualization of ASD-associated genetic variants
+using IndiGen and gnomAD population datasets.
 
-────────────────────────────────────────────────────────────────────────
-STEP 1: Variant Identification, Annotation & Prioritization
-────────────────────────────────────────────────────────────────────────
-pipeline-step1.sh
-• Preparation of targeted gene BED files
-• Extraction of variants from the IndiGen dataset
-• Variant annotation using standard annotation tools
-• Variant prioritization:
-  – Missense variants using REVEL score
-  – Loss-of-function variants using LOFTEE
-• ACMG–AMP classification of prioritized variants
+---
 
-────────────────────────────────────────────────────────────────────────
-STEP 2: gnomAD Variant Query & File Preparation
-────────────────────────────────────────────────────────────────────────
-VCF-based (Variant ID–centric):
-• varID_query_gnomAD.sh
-• varID_joint_flatten_gnomad.sh
+## Pipeline Overview
 
-Gene-based queries:
-• query_gnomAD.sh
-• joint_flatten_gnomad.sh
+### Step 1: Targeted Variant Identification and Annotation
+**Script:** `pipeline-step1.sh`
 
-These scripts query the gnomAD API and generate flattened allele count (AC)
-and allele number (AN) tables across global and sub-populations.
+- Preparation of targeted gene BED files
+- Extraction of variants from the IndiGen dataset
+- Functional annotation of variants
+- Variant prioritization based on:
+  - **REVEL score** (missense variants)
+  - **LOFTEE** (loss-of-function variants)
+- Variant classification using **ACMG–AMP guidelines**
 
-────────────────────────────────────────────────────────────────────────
-STEP 3: Population-Level Enrichment Analysis
-────────────────────────────────────────────────────────────────────────
-maf_fisher_test.R
-• Construction of contingency tables for IndiGen vs. gnomAD populations
-• Fisher’s exact test for variant enrichment analysis
-• Multiple testing correction using Bonferroni adjustment
-• Identification of statistically significant population-specific variants
+---
 
-────────────────────────────────────────────────────────────────────────
-STEP 4: Carrier Frequency & Prevalence Estimation
-────────────────────────────────────────────────────────────────────────
-• Calculation of carrier frequency for ASD-associated variants
-• Estimation of variant prevalence within the IndiGen dataset
-• Gene-level aggregation of variant burden
+### Step 2: gnomAD Variant Query and File Preparation
+**Scripts (VCF-based):**
+- `varID_query_gnomAD.sh`
+- `varID_joint_flatten_gnomad.sh`
 
-────────────────────────────────────────────────────────────────────────
-STEP 5: Data Visualization for Research Article
-────────────────────────────────────────────────────────────────────────
-data_plot.R
-• Population-wise minor allele frequency (MAF) visualization
-• Integration of statistical significance and ACMG classification
-• Generation of publication-quality figures for the manuscript
+**Scripts (Gene-based):**
+- `query_gnomAD.sh`
+- `joint_flatten_gnomad.sh`
 
-────────────────────────────────────────────────────────────────────────
+- Query gnomAD API using variant IDs or gene-based inputs
+- Retrieve allele counts and allele numbers
+- Generate flattened, analysis-ready tables from gnomAD responses
 
+---
 
-## 🔍 **Carrier and Prevalence Rate Estimation**
+### Step 3: Population-Level Enrichment Analysis
+**Script:** `maf_fisher_test.R`
+
+- Computation of population-specific Minor Allele Frequencies (MAF)
+- Construction of contingency tables
+- Statistical testing using **Fisher’s Exact Test**
+- Multiple testing correction using **Bonferroni adjustment**
+- Identification of variants significantly enriched in IndiGen compared to global populations
+
+---
+
+### Step 4: Carrier Frequency and Prevalence Estimation
+- Calculation of carrier frequency and disease prevalence
+- Focused analysis on ASD-associated variants and genes
+- IndiGen cohort–specific burden estimation
+
+---
+
+### Step 5: Visualization for Research Publication
+**Script:** `data_plot.R`
+
+- Integration of MAF, statistical significance, ACMG classification, and gene annotation
+- Generation of publication-quality population comparison plots
+- Figures used directly in the research article
+- 
+#### 🔍 ***Carrier and Prevalence Rate Estimation***
 
 To analyze genotype data (GT matrix) and compute:
 
@@ -70,7 +72,7 @@ To analyze genotype data (GT matrix) and compute:
 
 ---
 
-## ⚙️ **Step-by-Step Plan**
+#### ⚙️ **Step-by-Step Plan**
 
 ### ✅ **Assumptions**
 
@@ -80,7 +82,7 @@ To analyze genotype data (GT matrix) and compute:
 
 ---
 
-### 🧩 **Step 1: Script Interface**
+##### 🧩 **Step 5.1: Script Interface**
 
 Write a shell wrapper: `cr_pr.sh`, which calls a Python script:
 
@@ -94,7 +96,7 @@ Usage: ./cr_pr.sh -gf <GenotypeFile> -qf <QueryFile> -o <OutputFile>
 
 ---
 
-### 📄 **Step 2: Input File Format**
+##### 📄 **Step 5.2: Input File Format**
 
 **Genotype File**
 
@@ -114,35 +116,35 @@ v1	    g1	  AR	  ASD
 
 ---
 
-### 🔢 **Step 3: Data Integration**
+##### 🔢 **Step 5.3: Data Integration**
 
 * Match `variant` entries between genotype and query file.
 * Add `gene`, `moi`, and `condition` as metadata to each variant row.
 
 ---
 
-### 📊 **Step 4: Genotype Counting**
+##### 📊 **Step 5.4: Genotype Counting**
 
-#### A. **Per Variant (Row-wise)**
+###### A. **Per Variant (Row-wise)**
 
 * `het_raw_per_variant`: count of `0/1, 1/0, 0|1, 1|0, ./1, 1/.`
 * `hom_raw_per_variant`: count of `1/1, 1|1`
 
-#### B. **Per Gene**
+###### B. **Per Gene**
 
 * `het_raw_per_gene`: total hets across all variants in the same gene.
 * `hom_raw_per_gene`: total homs across all variants in the same gene.
 
-#### C. **Unique Per Gene+MOI**
+###### C. **Unique Per Gene+MOI**
 
 * `uniq_het_for_moi_per_gene`: 1 count per sample if at least one **het** only.
 * `uniq_hom_for_moi_per_gene`: 1 count per sample if at least one **hom**, even if both het & hom.
 
 ---
 
-### 🧬 **Step 5: Disease Model-Based Aggregation**
+##### 🧬 **Step 5.5: Disease Model-Based Aggregation**
 
-#### For **AR (Recessive)**
+###### For **AR (Recessive)**
 
 * `uniq_het_for_rec_pcond_CARRIER`: total unique **carrier** samples per condition.
 * `uniq_hom_for_rec_pcond_DISEASED`: total unique **disease** samples per condition.
@@ -152,20 +154,20 @@ Rules:
 * If sample has both het and hom, count it as **hom** only.
 * Count only once per sample even if multiple het/hom variants.
 
-#### For **AD (Dominant)**
+###### For **AD (Dominant)**
 
 * `uniq_hethom_for_dom_pcond_DISEASED`: count samples with **any het or hom** in a gene.
 * If both are present in a sample → count once as **hom** (dominant disease logic).
 
 ---
 
-### 🧮 **Step 6: Hardy-Weinberg Equilibrium (HWE) Calculations**
+##### 🧮 **Step 5.6: Hardy-Weinberg Equilibrium (HWE) Calculations**
 
 **Given:**
 
 * popsize = number of samples in genotype file
 
-#### For **AR conditions**:
+###### For **AR conditions**:
 
 * `NORMAL_AC` = 2 × (popsize − carriers − diseased)
 * `CARRIER_AC` = number of **carriers**
@@ -177,13 +179,13 @@ Then:
 * **2PQ\_CARRIER\_REC** = CARRIER\_AC / popsize
 * **Q²\_DISEASED\_REC** = (1 - P)²
 
-#### For **AD conditions**:
+###### For **AD conditions**:
 
 * **PREVALENCE\_DOM** = (uniq\_hethom\_for\_dom\_pcond\_DISEASED) / popsize
 
 ---
 
-### 🧾 **Step 7: Output Format**
+##### 🧾 **Step 5.7: Output Format**
 
 All columns summarized for downstream use:
 
