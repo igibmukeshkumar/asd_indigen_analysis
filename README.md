@@ -126,5 +126,5 @@ Then:
 
 All columns summarized for downstream use:
 
-| variant | gene | moi | condition | het\_raw\_per\_variant | hom\_raw\_per\_variant | het\_raw\_per\_gene | hom\_raw\_per\_gene | uniq\_het\_for\_moi\_per\_gene | uniq\_hom\_for\_moi\_per\_gene | uniq\_het\_for\_rec\_pcond\_CARRIER | uniq\_hom\_for\_rec\_pcond\_DISEASED | uniq\_hethom\_for\_dom\_pcond\_DISEASED | 2PQ\_CARRIER\_REC | Q²\_DISEASED\_REC | P²\_NORMAL\_REC | PREVALENCE\_DOM |
-| ------- | ---- | --- | --------- | ---------------------- | ---------------------- | ------------------- | ------------------- | ------------------------------ | ------------------------------ | ----------------------------------- | ------------------------------------ | --------------------------------------- | ----------------- | ----------------- | --------------- | --------------- |
+| variant | gene | moi | condition | het\_raw\_per\_variant | hom\_raw\_per\_variant | het\_raw\_per\_gene | hom\_raw\_per\_gene | uniq\_het\_for\_moi\_per\_gene | uniq\_hom\_for\_moi\_per\_gene | uniq\_het\_for\_rec\_pcond\_CARRIER | uniq\_hom\_for\_rec\_pcond\_DISEASED | uniq\_hethom\_for\_dom\_pcond\_DISEASED | 
+| ------- | ---- | --- | --------- | ---------------------- | ---------------------- | ------------------- | ------------------- | ------------------------------ | ------------------------------ | ----------------------------------- | ------------------------------------ | --------------------------------------- |
