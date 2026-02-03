@@ -8,12 +8,12 @@ using IndiGen and gnomAD population datasets.
 
 ## Pipeline Overview
 
-### Step 1: Targeted Variant Identification and Annotation
+### Step 1: Targeted Genes Variant Identification and Annotation
 **Script:** `pipeline-step1.sh`
 
-- Preparation of targeted gene BED files
+- Preparation of targeted genes BED file
 - Extraction of variants from the IndiGen dataset
-- Functional annotation of variants
+- Annotation of variants
 - Variant prioritization based on:
   - **REVEL score** (missense variants)
   - **LOFTEE** (loss-of-function variants)
@@ -31,15 +31,15 @@ using IndiGen and gnomAD population datasets.
 - `joint_flatten_gnomad.sh`
 
 - Query gnomAD API using variant IDs or gene-based inputs
-- Retrieve allele counts and allele numbers
+- Retrieve allele counts and allele numbers for the available populations
 - Generate flattened, analysis-ready tables from gnomAD responses
 
 ---
 
-### Step 3: Population-Level Enrichment Analysis
+### Step 3: Population-Level MAF (minor allele frquency) Estimation Analysis Across the Globe
 **Script:** `maf_fisher_test.R`
 
-- Computation of population-specific Minor Allele Frequencies (MAF)
+- Computation of population-specific MAF
 - Construction of contingency tables
 - Statistical testing using **Fisher’s Exact Test**
 - Multiple testing correction using **Bonferroni adjustment**
@@ -47,21 +47,22 @@ using IndiGen and gnomAD population datasets.
 
 ---
 
-### Step 4: Carrier Frequency and Prevalence Estimation
-- Calculation of carrier frequency and disease prevalence
-- Focused analysis on ASD-associated variants and genes
-- IndiGen cohort–specific burden estimation
-
----
-
-### Step 5: Visualization for Research Publication
+### Step 4: Visualization for Research Publication
 **Script:** `data_plot.R`
 
 - Integration of MAF, statistical significance, ACMG classification, and gene annotation
 - Generation of publication-quality population comparison plots
 - Figures used directly in the research article
-- 
-#### 🔍 ***Carrier and Prevalence Rate Estimation***
+
+  
+---
+
+### Step 5: Carrier Frequency and Prevalence Estimation
+- Calculation of carrier frequency and disease prevalence
+- Focused analysis on ASD-associated variants and genes
+- IndiGen cohort–specific burden estimation
+
+####  ***Carrier and Prevalence Rate Estimation***
 
 To analyze genotype data (GT matrix) and compute:
 
