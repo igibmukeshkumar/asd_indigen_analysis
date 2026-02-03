@@ -1,4 +1,65 @@
-## 🔍 **Objective: Carrier and Prevalence Rate Estimation**
+╔══════════════════════════════════════════════════════════════════════╗
+║                ASD Variant Analysis Pipeline (IndiGen + gnomAD)      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+This repository contains a stepwise bioinformatics pipeline for identifying,
+annotating, prioritizing, and statistically evaluating ASD-associated genetic
+variants using the IndiGen dataset and global population references from gnomAD.
+
+────────────────────────────────────────────────────────────────────────
+STEP 1: Variant Identification, Annotation & Prioritization
+────────────────────────────────────────────────────────────────────────
+pipeline-step1.sh
+• Preparation of targeted gene BED files
+• Extraction of variants from the IndiGen dataset
+• Variant annotation using standard annotation tools
+• Variant prioritization:
+  – Missense variants using REVEL score
+  – Loss-of-function variants using LOFTEE
+• ACMG–AMP classification of prioritized variants
+
+────────────────────────────────────────────────────────────────────────
+STEP 2: gnomAD Variant Query & File Preparation
+────────────────────────────────────────────────────────────────────────
+VCF-based (Variant ID–centric):
+• varID_query_gnomAD.sh
+• varID_joint_flatten_gnomad.sh
+
+Gene-based queries:
+• query_gnomAD.sh
+• joint_flatten_gnomad.sh
+
+These scripts query the gnomAD API and generate flattened allele count (AC)
+and allele number (AN) tables across global and sub-populations.
+
+────────────────────────────────────────────────────────────────────────
+STEP 3: Population-Level Enrichment Analysis
+────────────────────────────────────────────────────────────────────────
+maf_fisher_test.R
+• Construction of contingency tables for IndiGen vs. gnomAD populations
+• Fisher’s exact test for variant enrichment analysis
+• Multiple testing correction using Bonferroni adjustment
+• Identification of statistically significant population-specific variants
+
+────────────────────────────────────────────────────────────────────────
+STEP 4: Carrier Frequency & Prevalence Estimation
+────────────────────────────────────────────────────────────────────────
+• Calculation of carrier frequency for ASD-associated variants
+• Estimation of variant prevalence within the IndiGen dataset
+• Gene-level aggregation of variant burden
+
+────────────────────────────────────────────────────────────────────────
+STEP 5: Data Visualization for Research Article
+────────────────────────────────────────────────────────────────────────
+data_plot.R
+• Population-wise minor allele frequency (MAF) visualization
+• Integration of statistical significance and ACMG classification
+• Generation of publication-quality figures for the manuscript
+
+────────────────────────────────────────────────────────────────────────
+
+
+## 🔍 **Carrier and Prevalence Rate Estimation**
 
 To analyze genotype data (GT matrix) and compute:
 
