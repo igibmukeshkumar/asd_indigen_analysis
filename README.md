@@ -2,7 +2,7 @@
 
 This repository contains a step-wise bioinformatics pipeline for the identification,
 annotation, statistical evaluation, and visualization of ASD-associated genetic variants
-using IndiGen and gnomAD population datasets.
+using IndiGen and gnomAD population datasets. doi: https://doi.org/10.1101/2025.08.14.25333641
 
 ---
 
